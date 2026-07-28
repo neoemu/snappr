@@ -1,13 +1,20 @@
 """System tray icon and action menu."""
 from __future__ import annotations
 
+from pathlib import Path
+
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QColor, QFont, QIcon, QPainter, QPixmap
 from PySide6.QtWidgets import QMenu, QSystemTrayIcon
 
 
 def make_icon() -> QIcon:
-    """Generate a simple 'S' icon at runtime (no asset file needed)."""
+    """Load the packaged SVG icon; paint a simple 'S' as a fallback."""
+    svg = Path(__file__).resolve().parent.parent / "assets" / "snappr.svg"
+    if svg.is_file():
+        icon = QIcon(str(svg))
+        if not icon.isNull():
+            return icon
     pix = QPixmap(64, 64)
     pix.fill(Qt.GlobalColor.transparent)
     painter = QPainter(pix)

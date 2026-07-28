@@ -60,6 +60,10 @@ done
 
 rm -f "$DESKTOP_FILE" "$AUTOSTART_FILE" "$ICON_TARGET"
 
+for size in 16 22 24 32 48 64 128 256; do
+    rm -f "$ICON_ROOT/${size}x${size}/apps/$APP_ID.png"
+done
+
 if [ "$REMOVE_VENV" = true ]; then
     rm -rf "$VENV"
 fi
