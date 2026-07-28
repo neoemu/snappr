@@ -6,7 +6,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV="$HERE/.venv"
 
 if [ ! -d "$VENV" ]; then
-    echo "Criando virtualenv em $VENV ..."
+    echo "Creating virtualenv in $VENV ..."
     python3 -m venv "$VENV"
     "$VENV/bin/pip" install --upgrade pip
     "$VENV/bin/pip" install -r "$HERE/requirements.txt"

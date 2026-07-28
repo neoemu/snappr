@@ -44,7 +44,7 @@ class PreviewWindow(QMainWindow):
         super().__init__()
         self._rgb = np.ascontiguousarray(rgb)
         self._config = config
-        self.setWindowTitle("Shottr — Preview")
+        self.setWindowTitle("Snappr — Preview")
 
         self._color = QColor(config.get("annot_color", "#FF3B30"))
         self._width = int(config.get("annot_width", 3))
@@ -53,8 +53,8 @@ class PreviewWindow(QMainWindow):
 
         self._build_toolbar()
 
-        save_btn = QPushButton("Salvar PNG")
-        copy_btn = QPushButton("Copiar")
+        save_btn = QPushButton("Save PNG")
+        copy_btn = QPushButton("Copy")
         save_btn.clicked.connect(self._save)
         copy_btn.clicked.connect(self._copy)
 
@@ -83,7 +83,7 @@ class PreviewWindow(QMainWindow):
 
     # --- toolbar ---------------------------------------------------------
     def _build_toolbar(self) -> None:
-        bar = QToolBar("Ferramentas")
+        bar = QToolBar("Tools")
         bar.setIconSize(QSize(18, 18))
         self.addToolBar(bar)
 
@@ -99,36 +99,36 @@ class PreviewWindow(QMainWindow):
             group.addAction(act)
             return act
 
-        add_tool(icons.select_icon(), "Selecionar", Tool.SELECT, checked=True)
-        add_tool(icons.rect_icon(), "Retângulo", Tool.RECT)
-        add_tool(icons.arrow_icon(), "Seta", Tool.ARROW)
-        add_tool(icons.text_icon(), "Texto", Tool.TEXT)
+        add_tool(icons.select_icon(), "Select", Tool.SELECT, checked=True)
+        add_tool(icons.rect_icon(), "Rectangle", Tool.RECT)
+        add_tool(icons.arrow_icon(), "Arrow", Tool.ARROW)
+        add_tool(icons.text_icon(), "Text", Tool.TEXT)
 
         bar.addSeparator()
 
-        self._color_action = bar.addAction(_color_icon(self._color), "Cor")
-        self._color_action.setToolTip("Cor da anotação")
+        self._color_action = bar.addAction(_color_icon(self._color), "Color")
+        self._color_action.setToolTip("Annotation color")
         self._color_action.triggered.connect(self._pick_color)
 
         width_label = QLabel()
         width_label.setPixmap(icons.width_icon().pixmap(QSize(18, 18)))
-        width_label.setToolTip("Espessura do traço")
+        width_label.setToolTip("Stroke width")
         width_label.setContentsMargins(6, 0, 4, 0)
         bar.addWidget(width_label)
         self._width_spin = QSpinBox()
         self._width_spin.setRange(1, 40)
         self._width_spin.setValue(self._width)
-        self._width_spin.setToolTip("Espessura do traço")
+        self._width_spin.setToolTip("Stroke width")
         self._width_spin.valueChanged.connect(self._on_width_changed)
         bar.addWidget(self._width_spin)
 
         bar.addSeparator()
-        del_action = bar.addAction(icons.trash_icon(), "Apagar")
-        del_action.setToolTip("Apagar seleção (Delete)")
+        del_action = bar.addAction(icons.trash_icon(), "Delete")
+        del_action.setToolTip("Delete selection (Del)")
         del_action.triggered.connect(self.view.delete_selected)
 
     def _pick_color(self) -> None:
-        color = QColorDialog.getColor(self._color, self, "Cor da anotação")
+        color = QColorDialog.getColor(self._color, self, "Annotation color")
         if not color.isValid():
             return
         self._color = color
@@ -142,13 +142,13 @@ class PreviewWindow(QMainWindow):
     # --- actions ---------------------------------------------------------
     def _save(self) -> None:
         default = str(self._config.output_dir / imageutil.default_filename())
-        path, _ = QFileDialog.getSaveFileName(self, "Salvar captura", default, "PNG (*.png)")
+        path, _ = QFileDialog.getSaveFileName(self, "Save capture", default, "PNG (*.png)")
         if not path:
             return
         p = Path(path)
         imageutil.save_png(self.view.render_to_rgb(), p.parent, p.name)
-        self.status.setText(f"Salvo em {p}")
+        self.status.setText(f"Saved to {p}")
 
     def _copy(self) -> None:
         ok = imageutil.copy_to_clipboard(self.view.render_to_rgb())
-        self.status.setText("Copiado para a área de transferência" if ok else "Falha ao copiar")
+        self.status.setText("Copied to clipboard" if ok else "Copy failed")

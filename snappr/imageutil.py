@@ -32,7 +32,7 @@ def qimage_to_rgb(qimg: QImage) -> np.ndarray:
 
 def default_filename() -> str:
     ts = _dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    return f"Shottr_{ts}.png"
+    return f"Snappr_{ts}.png"
 
 
 def save_png(rgb: np.ndarray, out_dir: Path, filename: str | None = None) -> Path:

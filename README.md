@@ -1,110 +1,112 @@
 # Snappr
 
-Ferramenta de captura de tela para Linux (X11) inspirada no [Shottr](https://shottr.cc/),
-com foco na captura **em scroll** (scrolling screenshot): junta vários frames de
-uma região fixa enquanto você rola o conteúdo, produzindo uma única imagem alta.
+Screenshot tool for Linux (X11) inspired by [Shottr](https://shottr.cc/),
+focused on **scrolling capture**: it stitches multiple frames of a fixed
+region while the content scrolls, producing a single tall image.
 
-## Recursos (MVP)
-- Captura de **região** (seleção retangular).
-- Captura de **tela cheia** (todos os monitores).
-- **Captura em scroll** manual: selecione uma região, role o conteúdo e o app
-  costura os frames automaticamente.
-- **Salvar** em PNG e **copiar** para a área de transferência.
-- Ícone na **bandeja do sistema** + **atalhos globais** configuráveis.
+## Features (MVP)
+- **Region** capture (rectangular selection).
+- **Fullscreen** capture (all monitors).
+- **Scrolling capture**: select a region and the app scrolls automatically,
+  stitching the frames into one image.
+- **Annotation tools**: rectangle, arrow and text, with configurable color and
+  stroke width.
+- **Save** to PNG and **copy** to the clipboard.
+- **System tray** icon + configurable **global hotkeys**.
 
-## Requisitos
-- Linux com sessão **X11** (testado em Linux Mint / Cinnamon).
+## Requirements
+- Linux running an **X11** session (tested on Linux Mint / Cinnamon).
 - Python 3.10+.
-- `xclip` (opcional, fallback de cópia para a área de transferência).
+- `xclip` (optional, clipboard copy fallback).
 
-## Dependências de sistema (nova máquina)
-Em uma máquina limpa, instale primeiro as bibliotecas de runtime do Qt6/PySide6
-(OpenGL/EGL, `libxkbcommon`, plugins `xcb-util`) e o `python3`+venv:
+## System dependencies (fresh machine)
+On a clean machine, first install the Qt6/PySide6 runtime libraries
+(OpenGL/EGL, `libxkbcommon`, `xcb-util` plugins) and `python3`+venv:
 
 ```bash
-./system-deps.sh          # detecta apt/dnf/pacman/zypper e instala; usa sudo
-./system-deps.sh -y       # instala sem confirmar
-./system-deps.sh -n       # dry-run: só mostra o que seria instalado
+./system-deps.sh          # detects apt/dnf/pacman/zypper and installs; uses sudo
+./system-deps.sh -y       # install without confirmation
+./system-deps.sh -n       # dry-run: only show what would be installed
 ```
 
-Se o distro não for detectado, o script imprime a lista de pacotes para instalar
-manualmente. As dependências **Python** são tratadas à parte pelo `run.sh` /
-`install.sh` dentro do virtualenv.
+If the distro is not detected, the script prints the package list to install
+manually. **Python** dependencies are handled separately by `run.sh` /
+`install.sh` inside the virtualenv.
 
-## Como rodar
+## Running
 ```bash
 ./run.sh
 ```
-Na primeira execução o script cria um virtualenv em `.venv/` e instala as
-dependências de `requirements.txt`. O app fica na bandeja do sistema.
+On first run the script creates a virtualenv in `.venv/` and installs the
+dependencies from `requirements.txt`. The app lives in the system tray.
 
-Alternativa manual:
+Manual alternative:
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 .venv/bin/python main.py
 ```
 
-## Instalar no menu
-Para instalar o launcher e o ícone no menu do usuário atual:
+## Install to the menu
+To install the launcher and icon in the current user's menu:
 
 ```bash
 ./install.sh
 ```
 
-Para também iniciar automaticamente após login:
+To also start automatically after login:
 
 ```bash
 ./install.sh --autostart
 ```
 
-Para remover o launcher, autostart e ícone:
+To remove the launcher, autostart and icon:
 
 ```bash
 ./uninstall.sh
 ```
 
-Para remover também `.venv/` e `~/.config/snappr/`:
+To also remove `.venv/` and `~/.config/snappr/`:
 
 ```bash
 ./uninstall.sh --all
 ```
 
-## Atalhos padrão
-- `Ctrl+Shift+A` — capturar região
-- `Ctrl+Shift+S` — captura em scroll
-- `Ctrl+Shift+F` — capturar tela cheia
+## Default hotkeys
+- `Ctrl+Shift+A` — capture region
+- `Ctrl+Shift+S` — scrolling capture
+- `Ctrl+Shift+F` — capture fullscreen
 
-Configuráveis em `~/.config/snappr/config.json`.
+Configurable in `~/.config/snappr/config.json`.
 
-## Como usar a captura em scroll automático
-1. Acione a captura em scroll (atalho ou menu da bandeja).
-2. Selecione a **região** que contém o conteúdo rolável (mantenha a seleção
-   dentro da área que vai rolar, sem incluir barras de rolagem fixas).
-3. O app move o mouse para o centro da região, rola automaticamente e captura
-   cada passo.
-4. A captura termina sozinha quando a visualização parar de mudar, normalmente
-   no fim da página.
-5. Durante a captura, pressione `Enter`, `Espaço` ou `Ctrl+Enter` para concluir
-   manualmente; pressione `Esc` para cancelar.
+## Using automatic scrolling capture
+1. Trigger scrolling capture (hotkey or tray menu).
+2. Select the **region** containing the scrollable content (keep the selection
+   inside the area that will scroll, without including fixed scrollbars).
+3. The app moves the mouse to the center of the region, scrolls automatically
+   and captures each step.
+4. The capture finishes by itself when the view stops changing, usually at the
+   end of the page.
+5. During the capture, press `Enter`, `Space` or `Ctrl+Enter` to finish
+   manually; press `Esc` to cancel.
 
-## Testes
+## Tests
 ```bash
 .venv/bin/pip install pytest
 .venv/bin/python -m pytest
 ```
 
-## Limitações conhecidas
-- Apenas **X11** (Wayland não suportado neste MVP).
-- Headers/rodapés fixos ou barras de rolagem dentro da região podem atrapalhar
-  a costura. Selecione apenas a área de conteúdo.
-- Sem anotação, OCR ou pin-na-tela ainda (planejado para próximas versões).
+## Known limitations
+- **X11 only** (Wayland is not supported in this MVP).
+- Fixed headers/footers or scrollbars inside the region can confuse the
+  stitching. Select only the content area.
+- No OCR or pin-on-screen yet (planned for future versions).
 
-## Arquitetura
-- `snappr/capture.py` — captura via `mss`.
-- `snappr/stitch.py` — costura vertical (template matching com OpenCV).
-- `snappr/scroll_capture.py` — orquestra a sessão de scroll.
-- `snappr/overlay.py` — overlay de seleção de região.
-- `snappr/preview.py` — janela de resultado.
-- `snappr/tray.py` / `snappr/hotkey.py` — bandeja e atalhos globais.
-- `snappr/app.py` — controller que liga tudo.
+## Architecture
+- `snappr/capture.py` — capture via `mss`.
+- `snappr/stitch.py` — vertical stitching (template matching with OpenCV).
+- `snappr/scroll_capture.py` — orchestrates the scroll session.
+- `snappr/overlay.py` — region selection overlay.
+- `snappr/preview.py` — result window.
+- `snappr/tray.py` / `snappr/hotkey.py` — tray and global hotkeys.
+- `snappr/app.py` — controller wiring everything together.

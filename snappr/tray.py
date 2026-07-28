@@ -26,14 +26,14 @@ def make_icon() -> QIcon:
 def build_tray(controller) -> QSystemTrayIcon:
     """Create the tray icon wired to the controller's action slots."""
     tray = QSystemTrayIcon(make_icon())
-    tray.setToolTip("Shottr-Linux")
+    tray.setToolTip("Snappr")
 
     menu = QMenu()
 
-    act_region = QAction("Capturar região", menu)
-    act_full = QAction("Capturar tela cheia", menu)
-    act_scroll = QAction("Captura em scroll", menu)
-    act_quit = QAction("Sair", menu)
+    act_region = QAction("Capture region", menu)
+    act_full = QAction("Capture fullscreen", menu)
+    act_scroll = QAction("Scrolling capture", menu)
+    act_quit = QAction("Quit", menu)
 
     act_region.triggered.connect(controller.start_region_capture)
     act_full.triggered.connect(controller.start_fullscreen_capture)

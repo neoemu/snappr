@@ -16,7 +16,7 @@ from .scroll_capture import ScrollCaptureSession
 from .tray import build_tray
 
 
-class ShottrApp(QObject):
+class SnapprApp(QObject):
     """Owns app-wide state and the capture flows.
 
     The ``*_requested`` signals exist so global-hotkey callbacks (which fire on
@@ -55,8 +55,8 @@ class ShottrApp(QObject):
         )
         if not self.hotkeys.start():
             self.tray.showMessage(
-                "Shottr-Linux",
-                "Atalhos globais indisponíveis; use o menu da bandeja.",
+                "Snappr",
+                "Global hotkeys unavailable; use the tray menu.",
                 QSystemTrayIcon.MessageIcon.Information,
                 4000,
             )
@@ -131,15 +131,15 @@ class ShottrApp(QObject):
 
 def main() -> int:
     qapp = QApplication(sys.argv)
-    qapp.setApplicationName("Shottr-Linux")
+    qapp.setApplicationName("Snappr")
     # Keep running in the tray even when no window is open.
     qapp.setQuitOnLastWindowClosed(False)
 
     if not QSystemTrayIcon.isSystemTrayAvailable():
-        print("Aviso: bandeja do sistema indisponível; o app pode não aparecer.",
+        print("Warning: system tray unavailable; the app may not appear.",
               file=sys.stderr)
 
-    _app = ShottrApp(qapp)  # noqa: F841 (keep ref alive)
+    _app = SnapprApp(qapp)  # noqa: F841 (keep ref alive)
     return qapp.exec()
 
 
