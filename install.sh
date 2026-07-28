@@ -86,52 +86,12 @@ if [ -x "$VENV/bin/python" ]; then
 fi
 
 # gtk-update-icon-cache requires an index.theme in the user hicolor theme.
-if [ ! -f "$DATA_HOME/icons/hicolor/index.theme" ]; then
-    cat > "$DATA_HOME/icons/hicolor/index.theme" <<'THEME'
-[Icon Theme]
-Name=Hicolor
-Comment=User fallback icon theme
-Hidden=true
-Directories=16x16/apps,22x22/apps,24x24/apps,32x32/apps,48x48/apps,64x64/apps,128x128/apps,256x256/apps,scalable/apps
-
-[16x16/apps]
-Size=16
-Type=Fixed
-
-[22x22/apps]
-Size=22
-Type=Fixed
-
-[24x24/apps]
-Size=24
-Type=Fixed
-
-[32x32/apps]
-Size=32
-Type=Fixed
-
-[48x48/apps]
-Size=48
-Type=Fixed
-
-[64x64/apps]
-Size=64
-Type=Fixed
-
-[128x128/apps]
-Size=128
-Type=Fixed
-
-[256x256/apps]
-Size=256
-Type=Fixed
-
-[scalable/apps]
-Size=128
-Type=Scalable
-MinSize=1
-MaxSize=512
-THEME
+# Copy the COMPLETE system one: a partial index.theme here shadows the
+# system hicolor theme and breaks fallback icons (status/panel/actions).
+SYSTEM_INDEX="/usr/share/icons/hicolor/index.theme"
+USER_INDEX="$DATA_HOME/icons/hicolor/index.theme"
+if [ ! -f "$USER_INDEX" ] && [ -f "$SYSTEM_INDEX" ]; then
+    cp "$SYSTEM_INDEX" "$USER_INDEX"
 fi
 
 cat > "$DESKTOP_FILE" <<EOF
