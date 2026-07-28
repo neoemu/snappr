@@ -77,6 +77,37 @@ def rect_icon(color: QColor | None = None) -> QIcon:
     return _make(paint, color)
 
 
+def oval_icon(color: QColor | None = None) -> QIcon:
+    """Oval outline (tool: oval)."""
+
+    def paint(p: QPainter, s: float, fg: QColor) -> None:  # noqa: ARG001
+        p.drawEllipse(QRectF(s * 0.14, s * 0.25, s * 0.72, s * 0.50))
+
+    return _make(paint, color)
+
+
+def pixelate_icon(color: QColor | None = None) -> QIcon:
+    """Pixel mosaic (tool: pixelate sensitive content)."""
+
+    def paint(p: QPainter, s: float, fg: QColor) -> None:
+        p.setPen(Qt.PenStyle.NoPen)
+        gap = s * 0.035
+        cell = s * 0.18
+        left = s * 0.19
+        top = s * 0.19
+        alphas = (230, 115, 190, 95, 220, 125, 180, 105, 235)
+        for row in range(3):
+            for col in range(3):
+                shade = QColor(fg)
+                shade.setAlpha(alphas[row * 3 + col])
+                p.setBrush(shade)
+                x = left + col * (cell + gap)
+                y = top + row * (cell + gap)
+                p.drawRect(QRectF(x, y, cell, cell))
+
+    return _make(paint, color)
+
+
 def arrow_icon(color: QColor | None = None) -> QIcon:
     """Diagonal arrow with a filled head (tool: arrow)."""
 
@@ -102,6 +133,26 @@ def text_icon(color: QColor | None = None) -> QIcon:
     def paint(p: QPainter, s: float, fg: QColor) -> None:  # noqa: ARG001
         p.drawLine(QPointF(s * 0.24, s * 0.24), QPointF(s * 0.76, s * 0.24))
         p.drawLine(QPointF(s * 0.50, s * 0.24), QPointF(s * 0.50, s * 0.78))
+
+    return _make(paint, color)
+
+
+def counter_icon(color: QColor | None = None) -> QIcon:
+    """Numbered circle (tool: sequential counter markers)."""
+
+    def paint(p: QPainter, s: float, fg: QColor) -> None:
+        circle = QRectF(s * 0.17, s * 0.17, s * 0.66, s * 0.66)
+        p.setPen(Qt.PenStyle.NoPen)
+        p.setBrush(fg)
+        p.drawEllipse(circle)
+
+        luminance = (fg.red() * 299 + fg.green() * 587 + fg.blue() * 114) / 1000
+        p.setPen(QColor("#111111") if luminance > 175 else QColor("#FFFFFF"))
+        font = p.font()
+        font.setBold(True)
+        font.setPixelSize(int(s * 0.42))
+        p.setFont(font)
+        p.drawText(circle, Qt.AlignmentFlag.AlignCenter, "1")
 
     return _make(paint, color)
 

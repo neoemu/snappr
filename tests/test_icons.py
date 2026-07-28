@@ -22,8 +22,11 @@ def test_icons_render_non_empty(qapp):
     factories = [
         icons.select_icon,
         icons.rect_icon,
+        icons.oval_icon,
+        icons.pixelate_icon,
         icons.arrow_icon,
         icons.text_icon,
+        icons.counter_icon,
         icons.trash_icon,
         icons.width_icon,
     ]

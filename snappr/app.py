@@ -1,6 +1,7 @@
 """Application controller: wires tray, hotkeys and capture flows together."""
 from __future__ import annotations
 
+import signal
 import sys
 
 import numpy as np
@@ -13,6 +14,7 @@ from .hotkey import HotkeyManager
 from .overlay import RegionSelector
 from .preview import PreviewWindow
 from .scroll_capture import ScrollCaptureSession
+from .settings import SettingsDialog
 from .tray import build_tray
 
 
@@ -46,20 +48,10 @@ class SnapprApp(QObject):
         self.tray = build_tray(self)
         self.tray.show()
 
-        self.hotkeys = HotkeyManager(
-            {
-                self.config["hotkey_region"]: self.region_requested.emit,
-                self.config["hotkey_fullscreen"]: self.fullscreen_requested.emit,
-                self.config["hotkey_scroll"]: self.scroll_requested.emit,
-            }
-        )
+        self.hotkeys = HotkeyManager(self._hotkey_bindings())
+        self.qapp.aboutToQuit.connect(self.hotkeys.stop)
         if not self.hotkeys.start():
-            self.tray.showMessage(
-                "Snappr",
-                "Global hotkeys unavailable; use the tray menu.",
-                QSystemTrayIcon.MessageIcon.Information,
-                4000,
-            )
+            self._show_hotkey_warning()
 
     # --- capture flows ---------------------------------------------------
     @Slot()
@@ -123,6 +115,30 @@ class SnapprApp(QObject):
         win.activateWindow()
         self._windows.append(win)
 
+    def _hotkey_bindings(self) -> dict:
+        return {
+            self.config["hotkey_region"]: self.region_requested.emit,
+            self.config["hotkey_fullscreen"]: self.fullscreen_requested.emit,
+            self.config["hotkey_scroll"]: self.scroll_requested.emit,
+        }
+
+    def _show_hotkey_warning(self) -> None:
+        self.tray.showMessage(
+            "Snappr",
+            "Global hotkeys unavailable; use the tray menu.",
+            QSystemTrayIcon.MessageIcon.Information,
+            4000,
+        )
+
+    @Slot()
+    def show_settings(self) -> None:
+        # Avoid firing a capture while the user records a shortcut.
+        self.hotkeys.stop()
+        dialog = SettingsDialog(self.config)
+        dialog.exec()
+        if not self.hotkeys.restart(self._hotkey_bindings()):
+            self._show_hotkey_warning()
+
     @Slot()
     def quit(self) -> None:
         self.hotkeys.stop()
@@ -140,6 +156,17 @@ def main() -> int:
               file=sys.stderr)
 
     _app = SnapprApp(qapp)  # noqa: F841 (keep ref alive)
+
+    # Python only dispatches Unix signals while it is executing Python
+    # bytecode. A short Qt timer gives it regular opportunities to process
+    # Ctrl+C instead of leaving KeyboardInterrupt pending until the next UI
+    # callback (for example, clicking the tray's Quit action).
+    signal.signal(signal.SIGINT, lambda _signum, _frame: qapp.quit())
+    signal.signal(signal.SIGTERM, lambda _signum, _frame: qapp.quit())
+    signal_timer = QTimer(qapp)
+    signal_timer.timeout.connect(lambda: None)
+    signal_timer.start(200)
+
     return qapp.exec()
 
 

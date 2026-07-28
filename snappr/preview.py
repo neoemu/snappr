@@ -101,8 +101,11 @@ class PreviewWindow(QMainWindow):
 
         add_tool(icons.select_icon(), "Select", Tool.SELECT, checked=True)
         add_tool(icons.rect_icon(), "Rectangle", Tool.RECT)
+        add_tool(icons.oval_icon(), "Oval", Tool.OVAL)
+        add_tool(icons.pixelate_icon(), "Pixelate", Tool.PIXELATE)
         add_tool(icons.arrow_icon(), "Arrow", Tool.ARROW)
         add_tool(icons.text_icon(), "Text", Tool.TEXT)
+        add_tool(icons.counter_icon(), "Counter", Tool.COUNTER)
 
         bar.addSeparator()
 
@@ -141,6 +144,14 @@ class PreviewWindow(QMainWindow):
 
     # --- actions ---------------------------------------------------------
     def _save(self) -> None:
+        if self._config.get("save_directly", False):
+            path = imageutil.save_png_unique(
+                self.view.render_to_rgb(),
+                self._config.output_dir,
+            )
+            self.status.setText(f"Saved to {path}")
+            return
+
         default = str(self._config.output_dir / imageutil.default_filename())
         path, _ = QFileDialog.getSaveFileName(self, "Save capture", default, "PNG (*.png)")
         if not path:

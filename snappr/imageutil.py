@@ -27,7 +27,9 @@ def qimage_to_rgb(qimg: QImage) -> np.ndarray:
     ptr = qimg.constBits()
     arr = np.frombuffer(ptr, dtype=np.uint8).reshape((h, qimg.bytesPerLine()))
     arr = arr[:, : w * 3].reshape((h, w, 3))
-    return np.ascontiguousarray(arr)
+    # The buffer belongs to qimg. Always copy so the returned array remains
+    # valid after the QImage goes out of scope.
+    return np.array(arr, copy=True, order="C")
 
 
 def default_filename() -> str:
@@ -38,6 +40,21 @@ def default_filename() -> str:
 def save_png(rgb: np.ndarray, out_dir: Path, filename: str | None = None) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / (filename or default_filename())
+    rgb_to_qimage(rgb).save(str(path), "PNG")
+    return path
+
+
+def save_png_unique(
+    rgb: np.ndarray, out_dir: Path, filename: str | None = None
+) -> Path:
+    """Save a PNG without overwriting an existing file."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    requested = Path(filename or default_filename())
+    path = out_dir / requested.name
+    counter = 2
+    while path.exists():
+        path = out_dir / f"{requested.stem}_{counter}{requested.suffix}"
+        counter += 1
     rgb_to_qimage(rgb).save(str(path), "PNG")
     return path
 

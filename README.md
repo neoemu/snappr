@@ -9,10 +9,13 @@ region while the content scrolls, producing a single tall image.
 - **Fullscreen** capture (all monitors).
 - **Scrolling capture**: select a region and the app scrolls automatically,
   stitching the frames into one image.
-- **Annotation tools**: rectangle, arrow and text, with configurable color and
-  stroke width.
+- **Annotation tools**: rectangle, oval, pixelate, arrow, text and sequential
+  counter markers, with configurable color and stroke width. Rectangle, oval
+  and pixelate regions can be moved and resized after creation. Counter markers
+  can also be moved and resized while remaining circular.
 - **Save** to PNG and **copy** to the clipboard.
-- **System tray** icon + configurable **global hotkeys**.
+- **Settings** for the default save folder, direct saving and global hotkeys.
+- **System tray** icon with region, fullscreen and scrolling capture actions.
 
 ## Requirements
 - Linux running an **X11** session (tested on Linux Mint / Cinnamon).
@@ -77,7 +80,14 @@ To also remove `.venv/` and `~/.config/snappr/`:
 - `Ctrl+Shift+S` — scrolling capture
 - `Ctrl+Shift+F` — capture fullscreen
 
-Configurable in `~/.config/snappr/config.json`.
+Open **Settings…** from the Snappr tray menu to change the three hotkeys.
+
+## Save settings
+
+Open **Settings…** from the tray menu to choose the default screenshot folder.
+With direct saving disabled, **Save PNG** opens the file chooser in that folder.
+With direct saving enabled, **Save PNG** writes there immediately without
+opening a dialog. Existing files are never overwritten.
 
 ## Using automatic scrolling capture
 1. Trigger scrolling capture (hotkey or tray menu).
@@ -108,5 +118,6 @@ Configurable in `~/.config/snappr/config.json`.
 - `snappr/scroll_capture.py` — orchestrates the scroll session.
 - `snappr/overlay.py` — region selection overlay.
 - `snappr/preview.py` — result window.
+- `snappr/settings.py` — save and global-hotkey preferences.
 - `snappr/tray.py` / `snappr/hotkey.py` — tray and global hotkeys.
 - `snappr/app.py` — controller wiring everything together.

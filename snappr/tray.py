@@ -40,16 +40,20 @@ def build_tray(controller) -> QSystemTrayIcon:
     act_region = QAction("Capture region", menu)
     act_full = QAction("Capture fullscreen", menu)
     act_scroll = QAction("Scrolling capture", menu)
+    act_settings = QAction("Settings…", menu)
     act_quit = QAction("Quit", menu)
 
     act_region.triggered.connect(controller.start_region_capture)
     act_full.triggered.connect(controller.start_fullscreen_capture)
     act_scroll.triggered.connect(controller.start_scroll_capture)
+    act_settings.triggered.connect(controller.show_settings)
     act_quit.triggered.connect(controller.quit)
 
     menu.addAction(act_region)
     menu.addAction(act_full)
     menu.addAction(act_scroll)
+    menu.addSeparator()
+    menu.addAction(act_settings)
     menu.addSeparator()
     menu.addAction(act_quit)
 

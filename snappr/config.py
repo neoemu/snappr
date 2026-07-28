@@ -12,6 +12,8 @@ CONFIG_PATH = CONFIG_DIR / "config.json"
 DEFAULTS: dict[str, Any] = {
     # Where PNGs are saved by default.
     "output_dir": str(Path.home() / "Pictures" / "Screenshots"),
+    # Skip the file dialog and save immediately to output_dir.
+    "save_directly": False,
     # Global hotkey to start a region capture (pynput format).
     "hotkey_region": "<ctrl>+<shift>+a",
     # Global hotkey to start a scrolling capture.
